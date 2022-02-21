@@ -27,7 +27,7 @@ import com.supera.domain.service.ProductService;
 @RestController
 @RequestMapping("/product")
 public class ProductController {
-	
+
 	@Autowired
 	private ProductService productService;
 	@Autowired
@@ -55,7 +55,7 @@ public class ProductController {
 	// Adicionar Produto
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ProductModel adicionar(@Valid @RequestBody ProductInputModel productInput) {
+	public ProductModel add(@Valid @RequestBody ProductInputModel productInput) {
 
 		Product product = toEntity(productInput);
 
@@ -68,7 +68,7 @@ public class ProductController {
 
 	// atualizar atravez do id
 	@PutMapping("/{productId}")
-	public ResponseEntity<ProductModel> atualizar(@Valid @PathVariable Long productId,
+	public ResponseEntity<ProductModel> update(@Valid @PathVariable Long productId,
 			@RequestBody ProductInputModel productInput) {
 
 		Product product = toEntity(productInput);
@@ -86,7 +86,7 @@ public class ProductController {
 
 	// deletar curso
 	@DeleteMapping("/{productId}")
-	public ResponseEntity<Void> remover(@PathVariable Long productId) {
+	public ResponseEntity<Void> remove(@PathVariable Long productId) {
 		if (!productService.existProduct(productId)) {
 			return ResponseEntity.notFound().build();
 		}

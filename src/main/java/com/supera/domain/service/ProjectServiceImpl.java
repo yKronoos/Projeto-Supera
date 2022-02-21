@@ -18,8 +18,8 @@ public class ProjectServiceImpl implements ProductService{
 	
 	@Override
 	public Product insert(Product p) {
-		Product productExists=productRepository.findByName(p.getName());
-		if(productExists!=null && !productExists.equals(p)) {
+		Optional<Product> productExists=productRepository.findById(p.getId());
+		if(productExists.isPresent()) {
 			throw new NegocioException("Já existe um produto cadastrado com esse id");
 		}
 		return productRepository.save(p);
@@ -41,8 +41,9 @@ public class ProjectServiceImpl implements ProductService{
 		if(!productRepository.existsById(id)) {
 			throw new NegocioException("Esse produto não existe");
 		}
-		
-		p = productRepository.save(p);
+		Product product = p;
+		product.setId(id);
+		product = productRepository.save(product);
 		
 		return p;
 	}
@@ -70,5 +71,6 @@ public class ProjectServiceImpl implements ProductService{
 		}
 		return true;
 	}
+
 
 }

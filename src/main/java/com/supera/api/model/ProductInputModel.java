@@ -6,8 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class ProductInputModel {
-	@NotNull
-	public long id;
+	
 	@NotBlank
 	public String name;
 	@NotNull
@@ -18,14 +17,6 @@ public class ProductInputModel {
 	public String image;
 	
 	//Getters and Setters
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getName() {
 		return name;
