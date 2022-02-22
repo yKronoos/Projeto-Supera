@@ -106,8 +106,8 @@ public class ProductController {
 	}
 
 	// transforma o de representação para o de dominio
-	private Product toEntity(ProductInputModel alunoInputModel) {
-		return modelMapper.map(alunoInputModel, Product.class);
+	private Product toEntity(ProductInputModel productInputModel) {
+		return modelMapper.map(productInputModel, Product.class);
 	}
 
 }

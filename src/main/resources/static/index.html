@@ -9,12 +9,23 @@
 	<!-- Bootstrap CSS -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 	<title>Página inicial</title>
 </head>
 
 <body onload="showAll()">
 	<h1 style="text-align: center; margin-top: 10px;">Projeto Supera</h1>
+
+	<!--Botão carrinho de compras-->
+	<div class="mb-6" style=" margin: auto;
+								  width: 50%;
+								  padding: 10px;">
+
+		<button type="button" onclick="showCart()" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addProduct"><span
+				class="material-icons" >shopping_cart</span></button>
+
+	</div>
 
 	<div class="table-wrapper-scroll-y my-custom-scrollbar" style=" margin: auto;
 								  width: 50%;
@@ -34,47 +45,28 @@
 		</table>
 	</div>
 
-	<div class="mb-6" style=" margin: auto;
-								  width: 50%;
-								  padding: 10px;">
-
-		<button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-			data-bs-target="#addProduct">Adicionar</button>
-
-	</div>
-
-
 	<!--Modal-->
 
 	<div class="modal fade" id="addProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Adicionar produto</h5>
+					<h5 class="modal-title" id="exampleModalLabel">Carrinho</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<form>
-						<div class="mb-3">
-							<label for="message-text" class="col-form-label">Nome:</label>
-							<input type="text" class="form-control" id="nameProduct">
-						</div>
-						<div class="mb-3">
-							<label for="message-text" class="col-form-label">Preço:</label>
-							<input type="number" class="form-control" id="productPrice">
-						</div>
-						<div class="mb-3">
-							<label for="message-text" class="col-form-label">Pontuação:</label>
-							<input type="number" class="form-control" min="0" max="100" id="productScore">
-						</div>
-						<div class="mb-3">
-							<label for="formFile" class="form-label">Imagem:</label>
-							<input class="form-control" type="file" id="productImg">
-						</div>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" onclick="saveProduct()">Salvar</button>
+					<table class="table table-striped" id="tableListCart">
+						<thead>
+							<tr>
+								<th scope="col">Nome</th>
+								<th scope="col">Preço</th>
+								<th scope="col">Frete</th>
+							</tr>
+						</thead>
+						<tbody>
+
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
@@ -90,13 +82,12 @@
 	<script>
 
 		function removeProduct(id) {
-
 			var confirm = window.confirm("Deseja deletar esse produto?");
 			if (confirm) {
 
 				$.ajax({
 					method: "DELETE",
-					url: "product/" + id,
+					url: "cart/" + id,
 					success: function (response) {
 
 						location.reload();
@@ -111,21 +102,15 @@
 		}
 
 
-		function saveProduct() {
+		function saveProduct(nameProduct, priceProduct) {
 
-			var name = $("#nameProduct").val();
-			var price = $("#productPrice").val();
-			var score = $("#productScore").val();
-			var img = $("#productImg").val();
 
 			$.ajax({
 				method: "POST",
-				url: "product",
+				url: "cart",
 				data: JSON.stringify({
-					name: name,
-					price: price,
-					score: score,
-					image: img
+					name: nameProduct,
+					price: priceProduct,
 				}),
 				contentType: "application/json",
 				dataType: "json",
@@ -138,24 +123,8 @@
 
 
 		}
-		
-		function fillBD() {
-
-			$.ajax({
-				method: "POST",
-				url: "product/fillBD",
-				success: function (response) {
-					location.reload();
-				}
-			}).fail(function (xhr, status, errorThrown) {
-				alert("Erro ao buscar: " + xhr.responseText);
-			})
-
-
-		}
 
 		function showAll() {
-			var buttonAdd = '<button type="button" class="btn btn-success">Adicionar ao Carrinho</button>';
 
 			$.ajax({
 				method: "GET",
@@ -163,14 +132,62 @@
 				success: function (response) {
 					$('#tableList > tbody > tr').remove();
 
+					//<td><button type="button" class="btn btn-danger" onclick="removeProduct(' + response[i].id + ')">Remover</button></td>
+
 					for (var i = 0; i < response.length; i++) {
-						$('#tableList > tbody').append('<tr><td>' + response[i].name + '</td><td>' + response[i].price + '</td><td>' + response[i].score + '<td><td>' + buttonAdd + '</td><td><button type="button" class="btn btn-danger" onclick="removeProduct(' + response[i].id + ')">Remover</button></td></tr>');
+						$('#tableList > tbody').append('<tr><td>' + response[i].name + '</td><td>' + response[i].price + '</td><td>' + response[i].score + '<td><td><button type="button" class="btn btn-success" onclick="saveProduct(\'' + response[i].name + '\'' + ',' + response[i].price + ')"><span class="material-icons">add_shopping_cart</span></button ></td></tr>');
 					}
 
 				}
 			}).fail(function (xhr, status, errorThrown) {
 				alert("Erro ao buscar: " + xhr.responseText);
 			})
+		}
+		function showCart(){			
+			//Calcula o somatório
+			var totalPrice = 0;
+			var totalFrete = 0;
+			
+			var totalPay = 0;
+			
+			$.ajax({
+				method: "GET",
+				url: "cart",
+				success: function (response) {
+					for (var i = 0; i < response.length; i++) {
+						totalPrice += response[i].price;
+					}
+					
+					totalFrete = response.length * 10;
+					
+					totalPay = totalPrice + totalFrete;
+					
+				}
+			}).fail(function (xhr, status, errorThrown) {
+				alert("Erro ao buscar: " + xhr.responseText);
+			})
+			
+			//Mostra a tabela
+			$.ajax({
+				method: "GET",
+				url: "cart",
+				success: function (response) {
+					$('#tableListCart > tbody > tr').remove();
+
+					//<td><button type="button" class="btn btn-danger" onclick="removeProduct(' + response[i].id + ')">Remover</button></td>
+
+					for (var i = 0; i < response.length; i++) {
+						$('#tableListCart > tbody').append('<tr><td>' + response[i].name + '</td><td>' + response[i].price + '</td><td>R$ 10,00 </td><td><button type="button" class="btn btn-danger" onclick="removeProduct('+response[i].id+')"><span class="material-icons">close</span></button ></td></tr>');
+					
+					}
+					$('#tableListCart > tbody').append('<tr><td>Somatório</td><td>'+totalPrice+'</td><td>R$ '+totalFrete+',00</td></tr>');
+					$('#tableListCart > tbody').append('<tr><td></td><td></td><td>Total a pagar:</td><td>R$ '+totalPay.toPrecision()+'</td></tr>');
+
+				}
+			}).fail(function (xhr, status, errorThrown) {
+				alert("Erro ao buscar: " + xhr.responseText);
+			})
+			
 		}
 
 
