@@ -11,4 +11,7 @@ public interface ProductService {
 	public abstract List<Product> findAll();
 	public abstract Product findOne(Long id);
 	public abstract Boolean existProduct(Long id);
+	public abstract List<Product> orderPrice();
+	public abstract List<Product> orderScore();
+	public abstract List<Product> orderName();
 }

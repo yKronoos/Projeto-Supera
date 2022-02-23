@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.supera.domain.exception.NegocioException;
@@ -70,6 +71,21 @@ public class ProjectServiceImpl implements ProductService{
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public List<Product> orderPrice() {
+		return productRepository.findAll(Sort.by(Sort.Direction.ASC, "price"));
+	}
+
+	@Override
+	public List<Product> orderScore() {
+		return productRepository.findAll(Sort.by(Sort.Direction.ASC, "score"));
+	}
+
+	@Override
+	public List<Product> orderName() {
+		return productRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
 	}
 
 }

@@ -22,9 +22,21 @@
 								  width: 50%;
 								  padding: 10px;">
 
-		<button type="button" onclick="showCart()" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addProduct"><span
-				class="material-icons" >shopping_cart</span></button>
 
+		<table class="table table-borderless">
+
+			<tbody>
+				<tr>
+					<td><button type="button" onclick="sortName()" class="btn btn-outline-info">Ordem Alfabética</button></td>
+					<td><button type="button" onclick="sortPrice()" class="btn btn-outline-info">Menores Preços</button></td>
+					<td><button type="button" onclick="sortScore()" class="btn btn-outline-info">Menores Popularidades</button></td>
+					<td></td>
+					<td><button type="button" onclick="showCart()" class="btn btn-dark" data-bs-toggle="modal"
+			data-bs-target="#addProduct"><span class="material-icons">shopping_cart</span></button></td>
+				</tr>
+			</tbody>
+		</table>
+		
 	</div>
 
 	<div class="table-wrapper-scroll-y my-custom-scrollbar" style=" margin: auto;
@@ -36,7 +48,7 @@
 				<tr>
 					<th scope="col">Nome</th>
 					<th scope="col">Preço</th>
-					<th scope="col">Score</th>
+					<th scope="col">Popularidade</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -143,30 +155,36 @@
 				alert("Erro ao buscar: " + xhr.responseText);
 			})
 		}
-		function showCart(){			
+		function showCart() {
 			//Calcula o somatório
 			var totalPrice = 0;
 			var totalFrete = 0;
-			
+			var frete = [];
+
 			var totalPay = 0;
-			
+
 			$.ajax({
 				method: "GET",
 				url: "cart",
 				success: function (response) {
 					for (var i = 0; i < response.length; i++) {
 						totalPrice += response[i].price;
+						
+						if(response[i].price >= 250){
+							frete[i] = 0;
+						}else{
+							frete[i] = 10;
+							totalFrete += 10;
+						}
 					}
-					
-					totalFrete = response.length * 10;
-					
+
 					totalPay = totalPrice + totalFrete;
-					
+
 				}
 			}).fail(function (xhr, status, errorThrown) {
 				alert("Erro ao buscar: " + xhr.responseText);
 			})
-			
+
 			//Mostra a tabela
 			$.ajax({
 				method: "GET",
@@ -177,17 +195,77 @@
 					//<td><button type="button" class="btn btn-danger" onclick="removeProduct(' + response[i].id + ')">Remover</button></td>
 
 					for (var i = 0; i < response.length; i++) {
-						$('#tableListCart > tbody').append('<tr><td>' + response[i].name + '</td><td>' + response[i].price + '</td><td>R$ 10,00 </td><td><button type="button" class="btn btn-danger" onclick="removeProduct('+response[i].id+')"><span class="material-icons">close</span></button ></td></tr>');
-					
+						$('#tableListCart > tbody').append('<tr><td>' + response[i].name + '</td><td>' + response[i].price + '</td><td>'+frete[i]+'</td><td><button type="button" class="btn btn-danger" onclick="removeProduct(' + response[i].id + ')"><span class="material-icons">close</span></button ></td></tr>');
+
 					}
-					$('#tableListCart > tbody').append('<tr><td>Somatório</td><td>'+totalPrice+'</td><td>R$ '+totalFrete+',00</td></tr>');
-					$('#tableListCart > tbody').append('<tr><td></td><td></td><td>Total a pagar:</td><td>R$ '+totalPay.toPrecision()+'</td></tr>');
+					$('#tableListCart > tbody').append('<tr><td>Somatório</td><td>' + totalPrice + '</td><td>R$ ' + totalFrete + ',00</td></tr>');
+					$('#tableListCart > tbody').append('<tr><td></td><td></td><td>Total a pagar:</td><td>R$ ' + totalPay.toPrecision() + '</td></tr>');
 
 				}
 			}).fail(function (xhr, status, errorThrown) {
 				alert("Erro ao buscar: " + xhr.responseText);
 			})
-			
+
+		}
+
+		function sortName() {
+
+			$.ajax({
+				method: "GET",
+				url: "product" + "/orderName",
+				success: function (response) {
+					$('#tableList > tbody > tr').remove();
+					for (var i = 0; i < response.length; i++) {
+						$('#tableList > tbody').append('<tr><td>' + response[i].name + '</td><td>' + response[i].price + '</td><td>' + response[i].score + '<td><td><button type="button" class="btn btn-success" onclick="saveProduct(\'' + response[i].name + '\'' + ',' + response[i].price + ')"><span class="material-icons">add_shopping_cart</span></button ></td></tr>');
+					}
+
+				}
+
+
+			}).fail(function (xhr, status, errorThrown) {
+				alert("Erro ao buscar: " + xhr.responseText);
+			})
+
+		}
+
+		function sortPrice() {
+
+			$.ajax({
+				method: "GET",
+				url: "product" + "/orderPrice",
+				success: function (response) {
+					$('#tableList > tbody > tr').remove();
+					for (var i = 0; i < response.length; i++) {
+						$('#tableList > tbody').append('<tr><td>' + response[i].name + '</td><td>' + response[i].price + '</td><td>' + response[i].score + '<td><td><button type="button" class="btn btn-success" onclick="saveProduct(\'' + response[i].name + '\'' + ',' + response[i].price + ')"><span class="material-icons">add_shopping_cart</span></button ></td></tr>');
+					}
+
+				}
+
+
+			}).fail(function (xhr, status, errorThrown) {
+				alert("Erro ao buscar: " + xhr.responseText);
+			})
+
+		}
+
+		function sortScore() {
+
+			$.ajax({
+				method: "GET",
+				url: "product" + "/orderScore",
+				success: function (response) {
+					$('#tableList > tbody > tr').remove();
+					for (var i = 0; i < response.length; i++) {
+						$('#tableList > tbody').append('<tr><td>' + response[i].name + '</td><td>' + response[i].price + '</td><td>' + response[i].score + '<td><td><button type="button" class="btn btn-success" onclick="saveProduct(\'' + response[i].name + '\'' + ',' + response[i].price + ')"><span class="material-icons">add_shopping_cart</span></button ></td></tr>');
+					}
+
+				}
+
+
+			}).fail(function (xhr, status, errorThrown) {
+				alert("Erro ao buscar: " + xhr.responseText);
+			})
+
 		}
 
 

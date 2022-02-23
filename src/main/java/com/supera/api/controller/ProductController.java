@@ -52,6 +52,24 @@ public class ProductController {
 		return ResponseEntity.ok(productModel);
 	}
 
+	// Busca Produtos Ordenados por nome
+	@GetMapping("/orderName")
+	public List<ProductModel> orderName() {
+		return toColletionModel(productService.orderName());
+	}
+
+	// Busca Produtos Ordenados por preço
+	@GetMapping("/orderPrice")
+	public List<ProductModel> orderPrice() {
+		return toColletionModel(productService.orderPrice());
+	}
+
+	// Busca Produtos Ordenados por população
+	@GetMapping("/orderScore")
+	public List<ProductModel> orderScore() {
+		return toColletionModel(productService.orderScore());
+	}
+
 	// Adicionar Produto
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
